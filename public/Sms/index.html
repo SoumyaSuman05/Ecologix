@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Headless SMS Assistant — Operations Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">📡</div>
+    <div>
+      <div class="topbar-title">Headless SMS Assistant</div>
+      <div class="topbar-sub">Operations Hub · Accessibility Layer</div>
+    </div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="metric" style="--mc:var(--blue)">
+      <div class="metric-label">Active Drivers</div>
+      <div class="metric-val" id="m-active">4</div>
+      <div class="metric-sub">of 5 online</div>
+    </div>
+    <div class="metric" style="--mc:var(--green)">
+      <div class="metric-label">Loads Dispatched</div>
+      <div class="metric-val" id="m-dispatched">7</div>
+      <div class="metric-sub">today</div>
+    </div>
+    <div class="metric" style="--mc:var(--amber)">
+      <div class="metric-label">Avg Response Time</div>
+      <div class="metric-val" id="m-resp">1.8m</div>
+      <div class="metric-sub">within 5-min window</div>
+    </div>
+    <div class="metric" style="--mc:var(--red)">
+      <div class="metric-label">Auto-Reassigned</div>
+      <div class="metric-val" id="m-reassign">2</div>
+      <div class="metric-sub">timeout escalations</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- DRIVER FLEET -->
+    <div class="panel">
+      <div class="panel-title">Driver Fleet</div>
+      <div class="driver-list" id="driver-list"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+      <div class="tabs">
+        <div class="tab active" data-tab="sms">SMS Thread</div>
+        <div class="tab" data-tab="route">Route</div>
+        <div class="tab" data-tab="log">Event Log</div>
+      </div>
+
+      <!-- SMS TAB -->
+      <div id="tab-sms" class="tab-content">
+        <div class="sms-thread" id="sms-thread"></div>
+        <hr class="divider"/>
+        <div class="panel-title" style="margin-bottom:8px;">Simulate Driver Reply</div>
+        <div class="btn-row">
+          <button class="btn btn-green" data-reply="1">Reply 1 — Accept</button>
+          <button class="btn btn-red"   data-reply="2">Reply 2 — Reject</button>
+          <button class="btn"           data-reply="3">Reply 3 — Status</button>
+          <button class="btn"           data-reply="4">Reply 4 — Arrived</button>
+          <button class="btn btn-blue"  data-reply="*">Reply * — New Load</button>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+        <div class="timer-meta">
+          <span>0s</span>
+          <span id="timer-label">Idle — dispatch a load to begin</span>
+          <span>300s</span>
+        </div>
+      </div>
+
+      <!-- ROUTE TAB -->
+      <div id="tab-route" class="tab-content hidden">
+        <div class="map-box" id="map-box">
+          <div class="road-h" style="top:42%"></div>
+          <div class="road-h" style="top:68%"></div>
+          <div class="road-v" style="left:22%"></div>
+          <div class="road-v" style="left:72%"></div>
+          <div class="map-pin" style="left:19%;top:38%;background:#ef4444;"></div>
+          <div class="map-pin" style="left:69%;top:64%;background:#22c55e;"></div>
+          <div class="map-label" style="left:1%;top:29%;color:#ef4444;">Port Jebel Ali</div>
+          <div class="map-label" style="left:71%;top:68%;color:#22c55e;">Warehouse B</div>
+          <div class="map-label route-ok" style="left:35%;top:34%;">E311 ✓ Eco</div>
+          <div class="map-label route-bad" style="left:52%;top:58%;">E11 ✗ Delay</div>
+          <div id="truck" style="left:19%;top:32%;">🚛</div>
+        </div>
+        <div id="route-steps"></div>
+        <div class="conn-row">
+          <div class="dot dot-green"></div>
+          Route cached locally — GPS works offline
+        </div>
+      </div>
+
+      <!-- LOG TAB -->
+      <div id="tab-log" class="tab-content hidden">
+        <div class="log-wrap"><div id="event-log"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+
+    <!-- DISPATCH PANEL -->
+    <div class="panel">
+      <div class="panel-title">Dispatch Load</div>
+      <div id="notif-area"></div>
+      <div class="load-card">
+        <div class="load-card-header">
+          <span class="load-id">#LD-2024-008</span>
+          <span class="ds ds-pending">Pending</span>
+        </div>
+        <div class="load-route-txt">Port Jebel Ali → Warehouse B</div>
+        <div class="load-tags">
+          <span class="load-tag">72 km est.</span>
+          <span class="load-tag">3.2t cargo</span>
+          <span class="load-tag">Eco-route active</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-blue" id="btn-dispatch">📤 Send SMS to Driver</button>
+        <button class="btn"          id="btn-optimize">⚡ Run Eco-Optimizer</button>
+      </div>
+      <div class="opt-result" id="opt-result"></div>
+    </div>
+
+    <!-- REST STOP & FALLBACK -->
+    <div class="panel">
+      <div class="panel-title">Rest Stops &amp; Low-Connectivity</div>
+      <div class="notif notif-teal">☕ Rest stop: Al Quoz 24h Station — 3 km ahead on E311</div>
+      <div class="notif notif-amber">⚡ Low connectivity detected — caching route to device edge</div>
+      <div class="fallback-box">
+        <div class="fallback-title">Non-Smartphone Fallback — Text Navigation</div>
+        <div id="fallback-steps"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/sms.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/dispatch.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
