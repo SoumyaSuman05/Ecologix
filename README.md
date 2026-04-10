@@ -54,3 +54,7 @@ npm start
 - **Data** — In-memory (no database required)
 - **SMS** — Simulated Twilio integration
 - **Charts** — Chart.js (loaded via CDN)
+
+## Contributors
+- Soumya Suman
+- Rakshita Arora
